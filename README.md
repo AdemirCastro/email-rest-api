@@ -1,14 +1,14 @@
 
 # Microserviço de emails
 
-Microserviço para operações envolvendo emails.
+Microservice for email managing.
 
-## Funcionalidades e documentação 
-Você pode consultar as funcionalidades e a documentação do microserviço abrindo o arquivo app-doc.html em um navegador, ou acessando a URL do app no endpoint /docs em um navegador.
+## Features and documentation
+You can get the features and the documentation of the app opening the file app-doc.html in a browser, or acessing the app URL in the endpoint /docs on a internet browser.
 
-## Requisitos
-Todos os requisitos estão listados no arquivo requirements.txt.
-Você pode instalar todos de uma só vez, executando o comando:
+## Requirements
+The program must be run with Python3. All required libraries are listed in the file /requirements.txt.
+To install them all at once, just run the command:
 ```bash
 pip install -r requirements.txt
 ```
