@@ -7,6 +7,8 @@ hostname=socket.gethostname()
 IPAddr=socket.gethostbyname(hostname)
 
 app = FastAPI(
+    docs_url=None,
+    redoc_url='/docs',
     description= """
     MICROSERVICE FOR EMAIL OPERATIONS.
     """.upper()

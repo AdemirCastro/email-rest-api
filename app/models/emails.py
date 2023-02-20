@@ -1,16 +1,16 @@
 from pydantic import BaseModel, Field
 from typing import Optional, NewType, Dict, List
 
-class Anexo(BaseModel):
+class Attachment(BaseModel):
+    filename: str = Field(..., 
+                        description='Filename with extension.'
+                        )
     encoding: str = Field(...,
                         description="Protocol used to decode file bytes to string."
                         )
     file    : str = Field(...,
-                        description="File bytes converted to string.")
-
-Filename = NewType("filename_with_extension",str)
-class Anexos(BaseModel):
-    __root__: Dict[Filename, Anexo]
+                        description="File bytes converted to string."
+                        )
 
 class Server(BaseModel):
     host: str
@@ -33,55 +33,78 @@ class EmailCredentials(BaseModel):
                         description="Address and port of the SMTP server from email provider."
                         )
     
+class EmailSend(EmailCredentials):
 
-class Email(EmailCredentials):
-
-    sender       : str = Field(..., 
+    sender      : str = Field(..., 
                         description="Sender name that will appear on the message, "
                                     "satisfying provider policy."
                         )
 
-    recipients   : str = Field(..., 
+    recipients  : str = Field(..., 
                         description="String containing the recipients email addresses, "
                                     "separated by comma."
                         )
     
-    Cc           : Optional[str] = Field(default=None,
+    Cc          : Optional[str] = Field(default=None,
                         description="Cc email list."
                         )
 
-    subject      : str = Field(..., 
+    subject     : str = Field(..., 
                         description="Email subject."
                         )
 
-    body         : str = Field(..., 
+    body        : str = Field(..., 
                         description="Email body."
                         )
 
-    body_type    : Optional[str] = Field(default='plain',
+    body_type   : Optional[str] = Field(default='plain',
                         description="Type of the body content structure. For exemple, you can"
                                     " choose 'plain' for plain text content."  
                                     " If the content has html format, then you choose 'html'."
                         )
 
-    attachments  : Optional[Anexos] = Field(default=None, 
+    attachments : Optional[List[Attachment]] = Field(default=None, 
                         description="""
-    Dictionary containing email attachments.
-    The dictionary must have this structure: 
-    {
-    'file name with extension': {
+    json containing email attachments.
+    The json must have this structure: 
+    [
+        {
+        'filename': 
+            'file name with extension',
         'encoding': 
             'Protocol used to decode file bytes to string', 
         'file'    : 
             'File bytes converted to string'
         }
-    }.
+    ].
                         """
                         )
 
+class _From(BaseModel):
+    name : str = Field(..., description= 'Name on "from" field.')
+    email: str = Field(..., description= 'Email address on "from" field.')
+
+class EmailContent(BaseModel):
+    content_type: str = Field(..., description='Content type.')
+    content     : str = Field(..., description='Content.')
+
+class EmailMessage(BaseModel):
+    Uid        : str = Field(..., description='Email message Uid.')
+    Subject    : str = Field(..., description='Email message subject.')
+    Date       : str = Field(..., description='Email message received date.')
+    From       : _From = Field(..., description='Email message "From" field.')
+    Body       : List[EmailContent] = Field(..., description='Email message body contents.')
+    attachments: List[Attachment] = Field(..., description='Email message attachments.')
+
+class EmailUIDs(EmailCredentials):
+    mailbox: str = Field(...,description='Mailbox string.')
+    uids   : List[str] = Field(...,description='List of emails UIDs.')
 
 class send_post_response_model(BaseModel):
     errors: dict[str, tuple[int, bytes]]
 
 class mailboxes_get_response_model(BaseModel):
     mailboxes: List[str]
+
+class getEmails_get_response_model(BaseModel):
+    emails: List[EmailMessage]

@@ -1,10 +1,11 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
-from email import encoders
+from email import encoders, message_from_string
 from typing import Optional, Dict, List
 import smtplib
 import imaplib
+import re
 
 class email:
     """
@@ -78,13 +79,12 @@ class email:
         msg.attach(MIMEText(body, body_type))
 
         if attachments is not None:
-            for attachment_name in attachments:
+            for attachment in attachments:
                 att = MIMEBase('application','octet-stream')
-                attachment = attachments[attachment_name]
                 file = bytes(attachment['file'], encoding=attachment['encoding'])
                 att.set_payload(file)
                 encoders.encode_base64(att)
-                att.add_header('Content-Disposition',f'attachment; filename= {attachment_name}')
+                att.add_header('Content-Disposition',f'attachment; filename= {attachment["filename"]}')
                 msg.attach(att)
         smtp = smtplib.SMTP(
             host=self.smtp_server['host'], 
@@ -120,3 +120,75 @@ class email:
         mailboxes = [item.decode('utf-8').split(r' "/" ')[1].replace(r'"','') 
                                                 for item in imap.list()[1]]
         return mailboxes
+    
+    def get_emails(self, uids: List[str], mailbox: str) -> dict:
+        """ Get emails, given mailbox and emails UIDs.
+
+        Parameters:
+        -----------
+        uids: List[str]
+            List of email uids.
+        mailbox:
+            Mailbox string.
+        
+        Return:
+            emails_json: dict
+                Json containing email contents by uid.
+        """
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int(self.imap_server['port'])
+            )
+            
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        imap.select(mailbox, readonly=True)
+
+        emails_list: list = []
+        for id in uids:
+            data = imap.fetch(id, 'RFC822')[1][0][1]
+            email_message = message_from_string(data.decode('utf-8'))
+            
+            email_json: dict = {}
+            email_json['Uid']     = id
+            email_json['Subject'] = email_message['Subject']
+            email_json['Date']    = email_message['Date']
+
+            try:
+                from_name = re.search('"(.*)"', email_message['From']).group(1)
+            except AttributeError:
+                from_name = ''
+
+            from_email= re.search('<(.*)>', email_message['From']).group(1)
+            email_json['From']    = {'name': from_name, 'email': from_email}
+
+            attachments = {}
+            body: List[Dict[str,str]] = []
+            if email_message.is_multipart():
+                for part in email_message.walk():
+                    ctype = part.get_content_type()
+
+                    if ctype in ['text/html','text/plain']:
+                        body.append({
+                            'content_type': ctype,
+                            'content': part.get_payload()
+                                }
+                            )
+                    if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
+                        attachments[part.get_filename()] = {
+                            'encondig': part.get_charset(),
+                            'file': part.get_payload()}
+            else:
+                body.append({
+                    'content_type': email_message.get_content_type(),
+                    'content': email_message.get_payload()
+                        }
+                    )
+                
+            email_json['Body']        = body
+            email_json['attachments'] = attachments
+
+            emails_list.append(email_json)
+        return emails_list
