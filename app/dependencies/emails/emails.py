@@ -96,22 +96,26 @@ class email:
         return smtp.sendmail(msg['From'],[msg['To']],msg.as_string())
     
     def get_mailboxes(self) -> List[str]:
-        
-        mail = email(
-        login       =self.login,
-        password    =self.password,
-        smtp_server =self.smtp_server,
-        imap_server =self.imap_server
-        )
+        """ Get mailboxes.
+
+        Parameters:
+        -----------
+        None
+
+        Return:
+        -------
+        mailboxes: List[str]
+            List containing mailboxes names.
+        """
 
         imap = imaplib.IMAP4_SSL(
-        host=mail.imap_server['host'],
-        port=int(mail.imap_server['port'])
+        host=self.imap_server['host'],
+        port=int(self.imap_server['port'])
         )
         
         imap.login(
-            user    =mail.login,
-            password=mail.password
+            user    =self.login,
+            password=self.password
             )
         mailboxes = [item.decode('utf-8').split(r' "/" ')[1].replace(r'"','') 
                                                 for item in imap.list()[1]]
