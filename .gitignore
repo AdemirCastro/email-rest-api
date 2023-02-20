@@ -2,3 +2,5 @@ __pycache__
 *.ipynb
 *.env
 *.pyc
+.fleet
+run.json
