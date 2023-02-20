@@ -35,7 +35,7 @@ async def send(request: Email):
 
 @router.get('/mailboxes',
              response_model= mailboxes_get_response_model, 
-             description="Send a email."
+             description="Get mailboxes."
     )
 def get_boxes(Request: EmailCredentials):
     request_json = Request.dict()
