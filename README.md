@@ -1,5 +1,5 @@
 
-# Microserviço de emails
+# Emails microservice
 
 Microservice for email managing.
 
