@@ -1,11 +1,12 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
-from email import encoders, message_from_string
+from email import encoders, message_from_bytes
 from typing import Optional, Dict, List
 import smtplib
 import imaplib
 import re
+import base64
 
 class email:
     """
@@ -149,8 +150,7 @@ class email:
         emails_list: list = []
         for id in uids:
             data = imap.fetch(id, 'RFC822')[1][0][1]
-            email_message = message_from_string(data.decode('utf-8'))
-            
+            email_message = message_from_bytes(data)        
             email_json: dict = {}
             email_json['Uid']     = id
             email_json['Subject'] = email_message['Subject']
@@ -160,11 +160,13 @@ class email:
                 from_name = re.search('"(.*)"', email_message['From']).group(1)
             except AttributeError:
                 from_name = ''
-
-            from_email= re.search('<(.*)>', email_message['From']).group(1)
+            try:
+                from_email= re.search('<(.*)>', email_message['From']).group(1)
+            except AttributeError:
+                from_email= email_message['From']
             email_json['From']    = {'name': from_name, 'email': from_email}
 
-            attachments = {}
+            attachments = []
             body: List[Dict[str,str]] = []
             if email_message.is_multipart():
                 for part in email_message.walk():
@@ -177,9 +179,12 @@ class email:
                                 }
                             )
                     if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
-                        attachments[part.get_filename()] = {
-                            'encondig': part.get_charset(),
-                            'file': part.get_payload()}
+                        attachments.append({
+                            'filename': '' if part.get_filename() is None else part.get_filename(),
+                            'encoding': 'base64',
+                            'file': part.get_payload()
+                                }
+                            )
             else:
                 body.append({
                     'content_type': email_message.get_content_type(),

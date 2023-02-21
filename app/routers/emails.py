@@ -18,7 +18,8 @@ async def send(request: EmailSend):
     mail = email(
         login       =request_json['login'],
         password    =request_json['password'],
-        smtp_server =request_json['smtp_server']
+        smtp_server =request_json['smtp_server'],
+        imap_server =request_json['imap_server']
         )
     response = {"errors": mail.send_email(
                             sender      =request_json['sender'],
@@ -41,6 +42,7 @@ def get_boxes(Request: EmailCredentials):
     mail = email(
         login       =request_json['login'],
         password    =request_json['password'],
+        smtp_server =request_json['smpt_server'],
         imap_server =request_json['imap_server']
         )
     response = {"mailboxes": mail.get_mailboxes()}
