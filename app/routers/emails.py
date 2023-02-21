@@ -8,7 +8,7 @@ router = APIRouter(
     tags=['email'],
     )
 
-@router.post('/send',
+@router.post('/emails',
              response_model= send_post_response_model, 
              description="Send a email."
     )
@@ -48,7 +48,28 @@ def get_boxes(Request: EmailCredentials):
     response = {"mailboxes": mail.get_mailboxes()}
     return response
 
-@router.get('/get_emails',
+
+@router.get('/emails_uids',
+            response_model=getUIDs_get_response_model,
+            description='Get email UIDs, attending given criterias.')
+def get_uids(Request: GetEmailsUIDsForm):
+    request_json = Request.dict()
+    mail = email(
+        login      = request_json['login'],
+        password   = request_json['password'],
+        smtp_server= request_json['smtp_server'],
+        imap_server= request_json['imap_server']
+    )
+    response = {
+        'uids': mail.get_emails_uids(
+                    mailbox= request_json['mailbox'],
+                    criterias_dict= request_json['criterias']
+                    )
+        }
+    return response
+
+
+@router.get('/emails',
             response_model=getEmails_get_response_model,
             description='Get email messages, given mailbox and Uids.')
 def get_mails(Request: EmailUIDs):

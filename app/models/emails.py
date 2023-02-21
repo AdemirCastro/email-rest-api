@@ -100,6 +100,13 @@ class EmailUIDs(EmailCredentials):
     mailbox: str = Field(...,description='Mailbox string.')
     uids   : List[str] = Field(...,description='List of emails UIDs.')
 
+class GetEmailsUIDsForm(EmailCredentials):
+    mailbox: str = Field(..., description='Mailbox string.')
+    criterias: Dict[str,str] = Field(..., description="""
+        Dict with search criterias as specified in RFC 3501 (https://www.rfc-editor.org/rfc/rfc3501#section-6.4.4).
+        You must put the criteria keys as the dictionary keys, end the key parameter as the values.
+    """)
+
 class send_post_response_model(BaseModel):
     errors: dict[str, tuple[int, bytes]]
 
@@ -108,3 +115,6 @@ class mailboxes_get_response_model(BaseModel):
 
 class getEmails_get_response_model(BaseModel):
     emails: List[EmailMessage]
+
+class getUIDs_get_response_model(BaseModel):
+    uids: List[str]

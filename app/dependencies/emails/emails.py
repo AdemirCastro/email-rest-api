@@ -122,6 +122,36 @@ class email:
                                                 for item in imap.list()[1]]
         return mailboxes
     
+    def get_emails_uids(self, mailbox: str, criterias_dict: Dict[str,str]) -> List[str]:
+        """ Get email UIDs, given mailbox and criterias dict
+
+        Parameters:
+        -----------
+        mailbox: str
+            Mailbox string
+        criterias_dict: Dict[str,str]
+            Dict with search criterias as specified in RFC 3501 (https://www.rfc-editor.org/rfc/rfc3501#section-6.4.4).
+            You must put the criteria keys as the dictionary keys, end the key parameter as the values.
+        
+        Return:
+        -------
+        email_ids: List[str]
+            List containing emails UIDs corresponding to given criterias.
+        """
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int(self.imap_server['port'])
+            )
+            
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        imap.select(mailbox, readonly=True)
+        criterias = ' '.join([' '.join([key,criterias_dict[key]]) for key in criterias_dict.keys()])
+        email_ids = imap.search(None,criterias)[1][0].decode('utf-8').split()
+        return email_ids
+    
     def get_emails(self, uids: List[str], mailbox: str) -> dict:
         """ Get emails, given mailbox and emails UIDs.
 
