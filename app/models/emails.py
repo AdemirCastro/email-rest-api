@@ -89,7 +89,6 @@ class EmailContent(BaseModel):
     content     : str = Field(..., description='Content.')
 
 class EmailMessage(BaseModel):
-    Uid        : str = Field(..., description='Email message Uid.')
     Subject    : str = Field(..., description='Email message subject.')
     Date       : str = Field(..., description='Email message received date.')
     From       : _From = Field(..., description='Email message "From" field.')
@@ -107,14 +106,23 @@ class GetEmailsUIDsForm(EmailCredentials):
         You must put the criteria keys as the dictionary keys, end the key parameter as the values.
     """)
 
-class send_post_response_model(BaseModel):
+class PutEmailsMove(EmailCredentials):
+    from_box: str = Field(...,description='Mailbox box of the message to be moved.')
+    uid     : str = Field(...,description='Uid of the message to be moved.')
+    to_box  : str = Field(...,description='Destination mailbox.')
+
+class Send_post_response_model(BaseModel):
     errors: dict[str, tuple[int, bytes]]
 
-class mailboxes_get_response_model(BaseModel):
+class Mailboxes_get_response_model(BaseModel):
     mailboxes: List[str]
 
-class getEmails_get_response_model(BaseModel):
-    emails: List[EmailMessage]
+class Emails_get_response_model(BaseModel):
+    emails: EmailMessage
 
-class getUIDs_get_response_model(BaseModel):
+class UIDs_get_response_model(BaseModel):
     uids: List[str]
+
+class Move_put_desponse_model(BaseModel):
+    copy_response: str
+    delete_response: str

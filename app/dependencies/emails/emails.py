@@ -6,7 +6,6 @@ from typing import Optional, Dict, List
 import smtplib
 import imaplib
 import re
-import base64
 
 class email:
     """
@@ -170,22 +169,17 @@ class email:
             host= self.imap_server['host'],
             port=int(self.imap_server['port'])
             )
-            
         imap.login(
             user    =self.login,
             password=self.password
             )
         imap.select(mailbox, readonly=True)
-
-        emails_list: list = []
     
         data = imap.fetch(uid, 'RFC822')[1][0][1]
         email_message = message_from_bytes(data)        
         email_json: dict = {}
-        email_json['Uid']     = id
         email_json['Subject'] = email_message['Subject']
         email_json['Date']    = email_message['Date']
-
         try:
             from_name = re.search('"(.*)"', email_message['From']).group(1)
         except AttributeError:
@@ -201,7 +195,6 @@ class email:
         if email_message.is_multipart():
             for part in email_message.walk():
                 ctype = part.get_content_type()
-
                 if ctype in ['text/html','text/plain']:
                     body.append({
                         'content_type': ctype,
@@ -220,10 +213,43 @@ class email:
                 'content_type': email_message.get_content_type(),
                 'content': email_message.get_payload()
                     }
-                )
-            
+                )   
         email_json['Body']        = body
         email_json['attachments'] = attachments
+        return email_json
+    
+    def move_email(self, from_box: str, uid: str, to_box: str) -> None:
+        """ Move email message from one mailbox to another.
 
-        emails_list.append(email_json)
-        return emails_list
+        Parameters:
+        -----------
+        from_box: str
+            Mailbox of the message to be moved.
+        uid: str
+            Uid of the message to be moved.
+        to_box: str
+            Destination mailbox.
+
+        Return:
+        -------
+        None
+        """
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int(self.imap_server['port'])
+            )
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        imap.select(from_box)
+
+        response1 = imap.copy(uid, to_box)
+        response2 = imap.store(uid, '+FLAGS', '\\Deleted')
+        imap.expunge()
+
+        response = {
+            'copy_response'  : response1[0],
+            'delete_response': response2[0]
+        }
+        return response

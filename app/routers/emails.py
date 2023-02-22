@@ -9,7 +9,7 @@ router = APIRouter(
     )
 
 @router.post('/emails',
-             response_model= send_post_response_model, 
+             response_model= Send_post_response_model, 
              description="Send a email."
     )
 async def send(request: EmailSend):
@@ -34,7 +34,7 @@ async def send(request: EmailSend):
     return response
 
 @router.get('/mailboxes',
-             response_model= mailboxes_get_response_model, 
+             response_model= Mailboxes_get_response_model, 
              description="Get mailboxes."
     )
 def get_boxes(Request: EmailCredentials):
@@ -42,7 +42,7 @@ def get_boxes(Request: EmailCredentials):
     mail = email(
         login       =request_json['login'],
         password    =request_json['password'],
-        smtp_server =request_json['smpt_server'],
+        smtp_server =request_json['smtp_server'],
         imap_server =request_json['imap_server']
         )
     response = {"mailboxes": mail.get_mailboxes()}
@@ -50,7 +50,7 @@ def get_boxes(Request: EmailCredentials):
 
 
 @router.get('/emails_uids',
-            response_model=getUIDs_get_response_model,
+            response_model=UIDs_get_response_model,
             description='Get email UIDs, attending given criterias.')
 def get_uids(Request: GetEmailsUIDsForm):
     request_json = Request.dict()
@@ -70,7 +70,7 @@ def get_uids(Request: GetEmailsUIDsForm):
 
 
 @router.get('/emails',
-            response_model=getEmails_get_response_model,
+            response_model=Emails_get_response_model,
             description='Get email messages, given mailbox and Uids.')
 def get_mails(Request: EmailUID):
     request_json = Request.dict()
@@ -82,8 +82,27 @@ def get_mails(Request: EmailUID):
         )
     response = {
         'emails': mail.get_emails(
-            request_json['uids'],
+            request_json['uid'],
             request_json['mailbox']
         )
     }
+    return response
+
+
+@router.put('/emails/move',
+            response_model=Move_put_desponse_model,
+            description='Move email message from one mailbox to another.')
+def move_email(Request: PutEmailsMove):
+    request_json = Request.dict()
+    mail = email(
+        login      = request_json['login'],
+        password   = request_json['password'],
+        smtp_server= request_json['smtp_server'],
+        imap_server= request_json['imap_server']
+        )
+    response = mail.move_email(
+        from_box=request_json['from_box'],
+        uid=request_json['uid'],
+        to_box=request_json['to_box']
+    )
     return response
