@@ -152,13 +152,13 @@ class email:
         email_ids = imap.search(None,criterias)[1][0].decode('utf-8').split()
         return email_ids
     
-    def get_emails(self, uids: List[str], mailbox: str) -> dict:
+    def get_emails(self, uid: str, mailbox: str) -> dict:
         """ Get emails, given mailbox and emails UIDs.
 
         Parameters:
         -----------
-        uids: List[str]
-            List of email uids.
+        uids: str
+            Email uid.
         mailbox:
             Mailbox string.
         
@@ -178,52 +178,52 @@ class email:
         imap.select(mailbox, readonly=True)
 
         emails_list: list = []
-        for id in uids:
-            data = imap.fetch(id, 'RFC822')[1][0][1]
-            email_message = message_from_bytes(data)        
-            email_json: dict = {}
-            email_json['Uid']     = id
-            email_json['Subject'] = email_message['Subject']
-            email_json['Date']    = email_message['Date']
+    
+        data = imap.fetch(uid, 'RFC822')[1][0][1]
+        email_message = message_from_bytes(data)        
+        email_json: dict = {}
+        email_json['Uid']     = id
+        email_json['Subject'] = email_message['Subject']
+        email_json['Date']    = email_message['Date']
 
-            try:
-                from_name = re.search('"(.*)"', email_message['From']).group(1)
-            except AttributeError:
-                from_name = ''
-            try:
-                from_email= re.search('<(.*)>', email_message['From']).group(1)
-            except AttributeError:
-                from_email= email_message['From']
-            email_json['From']    = {'name': from_name, 'email': from_email}
+        try:
+            from_name = re.search('"(.*)"', email_message['From']).group(1)
+        except AttributeError:
+            from_name = ''
+        try:
+            from_email= re.search('<(.*)>', email_message['From']).group(1)
+        except AttributeError:
+            from_email= email_message['From']
+        email_json['From']    = {'name': from_name, 'email': from_email}
 
-            attachments = []
-            body: List[Dict[str,str]] = []
-            if email_message.is_multipart():
-                for part in email_message.walk():
-                    ctype = part.get_content_type()
+        attachments = []
+        body: List[Dict[str,str]] = []
+        if email_message.is_multipart():
+            for part in email_message.walk():
+                ctype = part.get_content_type()
 
-                    if ctype in ['text/html','text/plain']:
-                        body.append({
-                            'content_type': ctype,
-                            'content': part.get_payload()
-                                }
-                            )
-                    if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
-                        attachments.append({
-                            'filename': '' if part.get_filename() is None else part.get_filename(),
-                            'encoding': 'base64',
-                            'file': part.get_payload()
-                                }
-                            )
-            else:
-                body.append({
-                    'content_type': email_message.get_content_type(),
-                    'content': email_message.get_payload()
-                        }
-                    )
-                
-            email_json['Body']        = body
-            email_json['attachments'] = attachments
+                if ctype in ['text/html','text/plain']:
+                    body.append({
+                        'content_type': ctype,
+                        'content': part.get_payload()
+                            }
+                        )
+                if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
+                    attachments.append({
+                        'filename': '' if part.get_filename() is None else part.get_filename(),
+                        'encoding': 'base64',
+                        'file': part.get_payload()
+                            }
+                        )
+        else:
+            body.append({
+                'content_type': email_message.get_content_type(),
+                'content': email_message.get_payload()
+                    }
+                )
+            
+        email_json['Body']        = body
+        email_json['attachments'] = attachments
 
-            emails_list.append(email_json)
+        emails_list.append(email_json)
         return emails_list

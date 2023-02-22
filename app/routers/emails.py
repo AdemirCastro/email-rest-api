@@ -72,7 +72,7 @@ def get_uids(Request: GetEmailsUIDsForm):
 @router.get('/emails',
             response_model=getEmails_get_response_model,
             description='Get email messages, given mailbox and Uids.')
-def get_mails(Request: EmailUIDs):
+def get_mails(Request: EmailUID):
     request_json = Request.dict()
     mail = email(
         login      = request_json['login'],

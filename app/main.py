@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from routers import emails
-from dependencies.doc.doc import generate_documentation, json_to_md
+from dependencies.doc.doc import generate_documentation
 import uvicorn
 import socket  
 hostname=socket.gethostname()   

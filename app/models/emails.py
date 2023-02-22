@@ -96,9 +96,9 @@ class EmailMessage(BaseModel):
     Body       : List[EmailContent] = Field(..., description='Email message body contents.')
     attachments: List[Attachment] = Field(..., description='Email message attachments.')
 
-class EmailUIDs(EmailCredentials):
+class EmailUID(EmailCredentials):
     mailbox: str = Field(...,description='Mailbox string.')
-    uids   : List[str] = Field(...,description='List of emails UIDs.')
+    uid   : str = Field(...,description='Email UID.')
 
 class GetEmailsUIDsForm(EmailCredentials):
     mailbox: str = Field(..., description='Mailbox string.')
