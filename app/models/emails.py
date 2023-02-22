@@ -46,15 +46,15 @@ class EmailSend(EmailCredentials):
                         )
     
     Cc          : Optional[str] = Field(default=None,
-                        description="Cc email list."
+                        description="Cc email message list."
                         )
 
     subject     : str = Field(..., 
-                        description="Email subject."
+                        description="Email message subject."
                         )
 
     body        : str = Field(..., 
-                        description="Email body."
+                        description="Email message body."
                         )
 
     body_type   : Optional[str] = Field(default='plain',
@@ -114,6 +114,40 @@ class PutEmailsMove(EmailCredentials):
 class DeleteEmails(EmailCredentials):
     mailbox: str = Field(..., description='Mailbox of the message to be deleted.')
     uid    : str = Field(..., description='Uid of the message to be moved.')
+
+class PutReplyEmails(EmailCredentials):
+    mailbox  : str = Field(..., 
+                        description="Mailbox of the message to be replied."
+                        )
+    uid      : str = Field(..., 
+                        description='Uid of the message to be replied.')
+    sender   : str = Field(..., 
+                        description="Sender name that will appear on the message, "
+                                    "satisfying provider policy."
+                        )
+    body     : str = Field(..., 
+                        description="Email message body.")
+    body_type: Optional[str] = Field(default='plain',
+                        description="Type of the body content structure. For exemple, you can"
+                                    " choose 'plain' for plain text content."  
+                                    " If the content has html format, then you choose 'html'."
+                        )
+    attachments: Optional[List[Attachment]] = Field(default=None, 
+                        description="""
+        json containing email attachments.
+        The json must have this structure: 
+        [
+            {
+            'filename': 
+                'file name with extension',
+            'encoding': 
+                'Protocol used to decode file bytes to string', 
+            'file'    : 
+                'File bytes converted to string'
+            }
+        ].
+                            """
+                            )
 
 class Send_post_response_model(BaseModel):
     errors: dict[str, tuple[int, bytes]]

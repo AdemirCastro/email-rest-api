@@ -287,3 +287,70 @@ class email:
             'delete_response': delete_response[0]
         }
         return response
+    
+    def reply_email(self, mailbox: str, uid: str, sender: str, body: str, 
+                    body_type: str, attachments: List[Dict[str,str]]):
+        
+        """ Reply email message.
+
+        mailbox: str
+            Mailbox of the message to be replied.
+        uid: str
+            Uid of the message to be replied.
+        sender: str
+            Sender name that will appear on the message, satisfying provider policy.
+        body:
+            Email message body.
+        body_type: str
+            Type of the body content structure. For exemple, you can choose 'plain' for plain text content.  
+            If the content has html format, then you choose 'html'.
+        
+        """
+        smtp = smtplib.SMTP(
+                    host=self.smtp_server['host'], 
+                    port=int(self.smtp_server['port'])
+                    )
+        smtp.starttls()
+        smtp.login(self.login,self.password)
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int( self.imap_server['port'])
+            )
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        imap.select(mailbox)
+
+        data = imap.fetch(uid, 'RFC822')[1][0][1]
+        email_message = message_from_bytes(data)        
+        msg = MIMEMultipart('mixed')
+        _body = MIMEMultipart('alternative')
+
+        headers: dict = {}
+        headers['From']   = sender
+        headers['To']     = email_message['To']
+        headers['Cc']     = email_message['Cc']
+        for key in headers:
+            value = headers[key]
+            if isinstance(value,list):
+                value = ', '.join(value)
+            msg.add_header(key,value)
+
+        if email_message is not None:
+            msg['Subject'] = "RE: "+email_message['Subject'].replace("Re: ", "").replace("RE: ", "")
+            msg['In-Reply-To'] = email_message['Message-ID']
+            msg['References'] = email_message['Message-ID']
+            msg['Thread-Topic'] = email_message['Thread-Topic']
+            msg['Thread-Index'] = email_message['Thread-Index']
+        if attachments is not None:
+                    for attachment in attachments:
+                        att = MIMEBase('application','octet-stream')
+                        file = bytes(attachment['file'], encoding=attachment['encoding'])
+                        att.set_payload(file)
+                        encoders.encode_base64(att)
+                        att.add_header('Content-Disposition',f'attachment; filename= {attachment["filename"]}')
+                        msg.attach(att)
+        _body.attach(MIMEText(body, body_type))
+        msg.attach(_body)
+        return smtp.sendmail(msg['From'],[msg['To']],msg.as_string())

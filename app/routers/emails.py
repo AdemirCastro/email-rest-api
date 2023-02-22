@@ -12,7 +12,7 @@ router = APIRouter(
              response_model= Send_post_response_model, 
              description="Send a email."
     )
-async def send(request: EmailSend):
+async def send_message(request: EmailSend):
     request_json = request.dict()
 
     mail = email(
@@ -37,7 +37,7 @@ async def send(request: EmailSend):
              response_model= Mailboxes_get_response_model, 
              description="Get mailboxes."
     )
-def get_boxes(Request: EmailCredentials):
+def get_mailboxes(Request: EmailCredentials):
     request_json = Request.dict()
     mail = email(
         login       =request_json['login'],
@@ -52,7 +52,7 @@ def get_boxes(Request: EmailCredentials):
 @router.get('/emails_uids',
             response_model=UIDs_get_response_model,
             description='Get email UIDs, attending given criterias.')
-def get_uids(Request: GetEmailsUIDsForm):
+def get_messages_uids(Request: GetEmailsUIDsForm):
     request_json = Request.dict()
     mail = email(
         login      = request_json['login'],
@@ -72,7 +72,7 @@ def get_uids(Request: GetEmailsUIDsForm):
 @router.get('/emails',
             response_model=Emails_get_response_model,
             description='Get email messages, given mailbox and Uids.')
-def get_mails(Request: EmailUID):
+def get_message(Request: EmailUID):
     request_json = Request.dict()
     mail = email(
         login      = request_json['login'],
@@ -92,7 +92,7 @@ def get_mails(Request: EmailUID):
 @router.put('/emails/move',
             response_model=Move_put_desponse_model,
             description='Move email message from one mailbox to another.')
-def move_email(Request: PutEmailsMove):
+def move_message(Request: PutEmailsMove):
     request_json = Request.dict()
     mail = email(
         login      = request_json['login'],
@@ -111,7 +111,7 @@ def move_email(Request: PutEmailsMove):
 @router.delete('/emails',
             response_model=Emails_delete_desponse_model,
             description='Delete email message.')
-def move_email(Request: DeleteEmails):
+def delete_message(Request: DeleteEmails):
     request_json = Request.dict()
     mail = email(
         login      = request_json['login'],
@@ -123,4 +123,27 @@ def move_email(Request: DeleteEmails):
         mailbox=request_json['mailbox'],
         uid=request_json['uid'],
     )
+    return response
+
+
+@router.put('/emails',
+            response_model=Send_post_response_model,
+            description='Reply email message.')
+def reply_message(Request:PutReplyEmails):
+    request_json = Request.dict()
+    mail = email(
+        login      = request_json['login'],
+        password   = request_json['password'],
+        smtp_server= request_json['smtp_server'],
+        imap_server= request_json['imap_server']
+        )
+    response = {"errors": mail.reply_email(
+                            mailbox     = request_json['mailbox'],
+                            uid         = request_json['uid'],
+                            sender      = request_json['sender'],
+                            body        = request_json['body'],
+                            body_type   = request_json['body_type'],
+                            attachments = request_json['attachments']
+                            )
+                    }
     return response
