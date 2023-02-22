@@ -106,3 +106,21 @@ def move_email(Request: PutEmailsMove):
         to_box=request_json['to_box']
     )
     return response
+
+
+@router.delete('/emails',
+            response_model=Emails_delete_desponse_model,
+            description='Delete email message.')
+def move_email(Request: DeleteEmails):
+    request_json = Request.dict()
+    mail = email(
+        login      = request_json['login'],
+        password   = request_json['password'],
+        smtp_server= request_json['smtp_server'],
+        imap_server= request_json['imap_server']
+        )
+    response = mail.delete_email(
+        mailbox=request_json['mailbox'],
+        uid=request_json['uid'],
+    )
+    return response

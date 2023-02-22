@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, NewType, Dict, List
+from typing import Optional,Dict, List
 
 class Attachment(BaseModel):
     filename: str = Field(..., 
@@ -111,6 +111,10 @@ class PutEmailsMove(EmailCredentials):
     uid     : str = Field(...,description='Uid of the message to be moved.')
     to_box  : str = Field(...,description='Destination mailbox.')
 
+class DeleteEmails(EmailCredentials):
+    mailbox: str = Field(..., description='Mailbox of the message to be deleted.')
+    uid    : str = Field(..., description='Uid of the message to be moved.')
+
 class Send_post_response_model(BaseModel):
     errors: dict[str, tuple[int, bytes]]
 
@@ -125,4 +129,7 @@ class UIDs_get_response_model(BaseModel):
 
 class Move_put_desponse_model(BaseModel):
     copy_response: str
+    delete_response: str
+
+class Emails_delete_desponse_model(BaseModel):
     delete_response: str

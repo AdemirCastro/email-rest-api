@@ -218,7 +218,7 @@ class email:
         email_json['attachments'] = attachments
         return email_json
     
-    def move_email(self, from_box: str, uid: str, to_box: str) -> None:
+    def move_email(self, from_box: str, uid: str, to_box: str) -> Dict:
         """ Move email message from one mailbox to another.
 
         Parameters:
@@ -232,7 +232,8 @@ class email:
 
         Return:
         -------
-        None
+        response: dict
+            Dictionary containing the move and delete operations reponses.
         """
         imap = imaplib.IMAP4_SSL(
             host= self.imap_server['host'],
@@ -244,12 +245,45 @@ class email:
             )
         imap.select(from_box)
 
-        response1 = imap.copy(uid, to_box)
-        response2 = imap.store(uid, '+FLAGS', '\\Deleted')
+        copy_response = imap.copy(uid, to_box)
+        delete_response = imap.store(uid, '+FLAGS', '\\Deleted')
         imap.expunge()
 
         response = {
-            'copy_response'  : response1[0],
-            'delete_response': response2[0]
+            'copy_response'  : copy_response[0],
+            'delete_response': delete_response[0]
+        }
+        return response
+    
+    def delete_email(self, mailbox: str, uid: str) -> Dict:
+        """ Move email message from one mailbox to another.
+
+        Parameters:
+        -----------
+        mailbox: str
+            Mailbox of the message to be deleted.
+        uid: str
+            Uid of the message to deleted.
+
+        Return:
+        -------
+        response: dict
+            Dictionary containing the delete operation reponse.
+        """
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int(self.imap_server['port'])
+            )
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        imap.select(mailbox)
+
+        delete_response = imap.store(uid, '+FLAGS', '\\Deleted')
+        imap.expunge()
+
+        response = {
+            'delete_response': delete_response[0]
         }
         return response
