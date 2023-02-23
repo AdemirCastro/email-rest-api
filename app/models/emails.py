@@ -149,6 +149,20 @@ class PutReplyEmails(EmailCredentials):
                             """
                             )
 
+class PostForwardMessages(EmailCredentials):
+    mailbox   : str = Field(..., 
+                        description="Mailbox of the message to be replied."
+                    )
+    uid       : str = Field(..., description='Uid of the message to be moved.')
+    sender    : str = Field(..., 
+                        description="Sender name that will appear on the message, "
+                                    "satisfying provider policy."
+                    )
+    recipients: str = Field(..., 
+                        description="String containing the recipients email addresses, "
+                                    "separated by comma."
+                    )
+
 class Send_post_response_model(BaseModel):
     errors: dict[str, tuple[int, bytes]]
 

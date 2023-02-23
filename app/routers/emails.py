@@ -8,7 +8,7 @@ router = APIRouter(
     tags=['email'],
     )
 
-@router.post('/emails',
+@router.post('/messages',
              response_model= Send_post_response_model, 
              description="Send a email."
     )
@@ -49,7 +49,7 @@ def get_mailboxes(Request: EmailCredentials):
     return response
 
 
-@router.get('/emails_uids',
+@router.get('/messages/uids',
             response_model=UIDs_get_response_model,
             description='Get email UIDs, attending given criterias.')
 def get_messages_uids(Request: GetEmailsUIDsForm):
@@ -69,7 +69,7 @@ def get_messages_uids(Request: GetEmailsUIDsForm):
     return response
 
 
-@router.get('/emails',
+@router.get('/messages',
             response_model=Emails_get_response_model,
             description='Get email messages, given mailbox and Uids.')
 def get_message(Request: EmailUID):
@@ -89,7 +89,7 @@ def get_message(Request: EmailUID):
     return response
 
 
-@router.put('/emails/move',
+@router.put('/messages/move',
             response_model=Move_put_desponse_model,
             description='Move email message from one mailbox to another.')
 def move_message(Request: PutEmailsMove):
@@ -108,7 +108,7 @@ def move_message(Request: PutEmailsMove):
     return response
 
 
-@router.delete('/emails',
+@router.delete('/messages',
             response_model=Emails_delete_desponse_model,
             description='Delete email message.')
 def delete_message(Request: DeleteEmails):
@@ -126,7 +126,7 @@ def delete_message(Request: DeleteEmails):
     return response
 
 
-@router.put('/emails',
+@router.put('/messages',
             response_model=Send_post_response_model,
             description='Reply email message.')
 def reply_message(Request:PutReplyEmails):
@@ -144,6 +144,26 @@ def reply_message(Request:PutReplyEmails):
                             body        = request_json['body'],
                             body_type   = request_json['body_type'],
                             attachments = request_json['attachments']
+                            )
+                    }
+    return response
+
+@router.post('/messages/forward',
+            response_model=Send_post_response_model,
+            description='Forward email message.')
+def forward_message(Request:PostForwardMessages):
+    request_json = Request.dict()
+    mail = email(
+        login      = request_json['login'],
+        password   = request_json['password'],
+        smtp_server= request_json['smtp_server'],
+        imap_server= request_json['imap_server']
+        )
+    response = {"errors": mail.forward(
+                            mailbox     = request_json['mailbox'],
+                            uid         = request_json['uid'],
+                            sender      = request_json['sender'],
+                            recipients  = request_json['recipients']
                             )
                     }
     return response

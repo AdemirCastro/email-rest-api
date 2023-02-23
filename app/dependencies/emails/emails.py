@@ -255,7 +255,7 @@ class email:
         }
         return response
     
-    def delete_email(self, mailbox: str, uid: str) -> Dict:
+    def delete_email(self, mailbox: str, uid: str) -> dict[str, tuple[int, bytes]]:
         """ Move email message from one mailbox to another.
 
         Parameters:
@@ -289,7 +289,7 @@ class email:
         return response
     
     def reply_email(self, mailbox: str, uid: str, sender: str, body: str, 
-                    body_type: str, attachments: List[Dict[str,str]]):
+            body_type: str, attachments: List[Dict[str,str]]) -> dict[str, tuple[int, bytes]]:
         
         """ Reply email message.
 
@@ -353,4 +353,44 @@ class email:
                         msg.attach(att)
         _body.attach(MIMEText(body, body_type))
         msg.attach(_body)
+        return smtp.sendmail(msg['From'],[msg['To']],msg.as_string())
+    
+    def forward(self, mailbox: str, uid: str, recipients: str, 
+                sender: str) -> dict[str, tuple[int, bytes]]:
+        """ Forward email message.
+
+        Parameters:
+        -----------
+        mailbox: str
+            Mailbox of the email message to be forwarded.
+        uid: str
+            Uid of the email message to be forwarded.
+        to: str
+            String containing recipiends email addresses, separated bi comma.
+        sender: str
+            Sender name that will appear on the message, satisfying provider policy.
+        """
+        smtp = smtplib.SMTP(
+                    host=self.smtp_server['host'], 
+                    port=int(self.smtp_server['port'])
+                    )
+        smtp.starttls()
+        smtp.login(self.login,self.password)
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int(self.imap_server['port'])
+            )
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        imap.select(mailbox)
+
+        data = imap.fetch(uid, 'RFC822')[1][0][1]
+        msg = message_from_bytes(data)        
+
+        msg.replace_header('From',sender)
+        msg.replace_header('To',recipients)
+        msg.replace_header('Subject','Forwarded: '+msg['Subject']\
+                           .replace('FWD: ','').replace('Fwd: ',''))
         return smtp.sendmail(msg['From'],[msg['To']],msg.as_string())
