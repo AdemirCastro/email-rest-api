@@ -162,6 +162,17 @@ class PostForwardMessages(EmailCredentials):
                         description="String containing the recipients email addresses, "
                                     "separated by comma."
                     )
+    
+class postMailboxCreate(EmailCredentials):
+    new_maibox: str = Field(..., description='New mailbox complete path, with name.')
+
+class putMailboxRename(EmailCredentials):
+    old_mailbox: str = Field(..., description='Old maibox path, with name.')
+    new_mailbox: str = Field(..., description='New mailbox name.')
+
+class deleteMailboxDelete(EmailCredentials):
+    mailbox: str = Field(..., description=
+                         'Complete path of the mailbox to be deleted, with name.')
 
 class Send_post_response_model(BaseModel):
     errors: dict[str, tuple[int, bytes]]
@@ -181,3 +192,6 @@ class Move_put_desponse_model(BaseModel):
 
 class Emails_delete_desponse_model(BaseModel):
     delete_response: str
+
+class MailboxPut_response_model(BaseModel):
+    response: list

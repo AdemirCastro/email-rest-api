@@ -394,3 +394,92 @@ class email:
         msg.replace_header('Subject','Forwarded: '+msg['Subject']\
                            .replace('FWD: ','').replace('Fwd: ',''))
         return smtp.sendmail(msg['From'],[msg['To']],msg.as_string())
+    
+    def mailbox_create(self, new_mailbox: str) -> list:
+        """ Create mailbox.
+
+        Parameters:
+        -----------
+        new_mailbox: str
+            Mailbox complete path.
+        
+        Return:
+        -------
+        _CommandResults:
+            Imaplib create response.
+        """
+        smtp = smtplib.SMTP(
+                    host=self.smtp_server['host'], 
+                    port=int(self.smtp_server['port'])
+                    )
+        smtp.starttls()
+        smtp.login(self.login,self.password)
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int( self.imap_server['port'])
+            )
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        return imap.create(new_mailbox)[1]
+    
+    def mailbox_delete(self, mailbox: str) -> list:
+        """ Delete mailbox.
+
+        Parameters:
+        -----------
+        mailbox: str
+            Mailbox complete path.
+        
+        Return:
+        -------
+        _CommandResults:
+            Imaplib delete response.
+        """
+        smtp = smtplib.SMTP(
+                    host=self.smtp_server['host'], 
+                    port=int(self.smtp_server['port'])
+                    )
+        smtp.starttls()
+        smtp.login(self.login,self.password)
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int( self.imap_server['port'])
+            )
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        return imap.delete(mailbox)[1]
+    
+    def mailbox_rename(self, old_mailbox: str, new_mailbox: str) -> list:
+        """ Create mailbox.
+
+        Parameters:
+        -----------
+        old_mailbox: str
+            Old mailbox complete path.
+        new_mailbox: str
+            New mailbox name.
+        
+        Return:
+        -------
+        _CommandResults:
+            Imaplib rename response.
+        """
+        smtp = smtplib.SMTP(
+                    host=self.smtp_server['host'], 
+                    port=int(self.smtp_server['port'])
+                    )
+        smtp.starttls()
+        smtp.login(self.login,self.password)
+        imap = imaplib.IMAP4_SSL(
+            host= self.imap_server['host'],
+            port=int( self.imap_server['port'])
+            )
+        imap.login(
+            user    =self.login,
+            password=self.password
+            )
+        return imap.rename(old_mailbox, new_mailbox)[1]

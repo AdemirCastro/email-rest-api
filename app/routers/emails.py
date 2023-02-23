@@ -167,3 +167,52 @@ def forward_message(Request:PostForwardMessages):
                             )
                     }
     return response
+
+
+@router.post('/mailboxes',
+             response_model= MailboxPut_response_model, 
+             description="Create mailbox."
+    )
+def create_mailbox(Request: postMailboxCreate):
+    request_json = Request.dict()
+    mail = email(
+        login       =request_json['login'],
+        password    =request_json['password'],
+        smtp_server =request_json['smtp_server'],
+        imap_server =request_json['imap_server']
+        )
+    response = {"response": mail.mailbox_create(request_json['new_mailbox'])}
+    return response
+
+
+@router.delete('/mailboxes',
+             response_model= MailboxPut_response_model, 
+             description="Delete mailbox."
+    )
+def delete_mailbox(Request: deleteMailboxDelete):
+    request_json = Request.dict()
+    mail = email(
+        login       =request_json['login'],
+        password    =request_json['password'],
+        smtp_server =request_json['smtp_server'],
+        imap_server =request_json['imap_server']
+        )
+    response = {"response": mail.mailbox_delete(request_json['mailbox'])}
+    return response
+
+
+@router.put('/mailboxes',
+             response_model= MailboxPut_response_model, 
+             description="Rename mailbox."
+    )
+def rename_mailbox(Request: putMailboxRename):
+    request_json = Request.dict()
+    mail = email(
+        login       =request_json['login'],
+        password    =request_json['password'],
+        smtp_server =request_json['smtp_server'],
+        imap_server =request_json['imap_server']
+        )
+    response = {"response": mail.mailbox_rename(
+                        request_json['old_mailbox'],request_json['new_mailbox'])}
+    return response
