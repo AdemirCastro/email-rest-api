@@ -101,10 +101,8 @@ class EmailUID(EmailCredentials):
 
 class GetEmailsUIDsForm(EmailCredentials):
     mailbox: str = Field(..., description='Mailbox path.')
-    criterias: Dict[str,str] = Field(..., description="""
-        Dict with search criterias as specified in RFC 3501 (https://www.rfc-editor.org/rfc/rfc3501#section-6.4.4).
-        You must put the criteria keys as the dictionary keys, end the key parameter as the values.
-    """)
+    criterias: Dict[str,str] = Field(..., 
+    description="""Dict with search criterias as specified in RFC 3501 (https://www.rfc-editor.org/rfc/rfc3501#section-6.4.4). You must put the criteria keys as the dictionary keys, end the key parameter as the values.""")
 
 class PutEmailsMove(EmailCredentials):
     from_box: str = Field(...,description='Mailbox path of the message to be moved.')
