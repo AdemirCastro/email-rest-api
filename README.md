@@ -41,7 +41,7 @@ docker build -t email-api-image .
 docker run -p 8000:8000 --name email-api email-api-image
 ```
 
-This second commmand create and run the container running the APi in the port 8000. To deploy the API in another port, you must run the bash command as super user (sudo) on the repository folder:
+This second commmand create and run the container running the API in the port 8000. To deploy the API in another port, you must run the bash command as super user (sudo) on the repository folder:
 ```bash
 docker run -p [port]:8000 --name email-api email-api-image
 ```
