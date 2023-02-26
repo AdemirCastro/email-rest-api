@@ -1,7 +1,7 @@
 import json
 from fastapi import FastAPI
 
-def generate_documentation(app: FastAPI) -> None:
+def generate_documentation_HTML(app: FastAPI) -> None:
     HTML_TEMPLATE = """<!DOCTYPE html>
         <html>
         <head>
