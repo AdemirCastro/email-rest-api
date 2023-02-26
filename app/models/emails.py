@@ -25,12 +25,12 @@ class EmailCredentials(BaseModel):
                         description="Application password for the email account."
                         )
 
-    smtp_server: Optional[Server] = Field(default={"host":"imap.gmail.com", "port":"587"},
+    smtp_server: Optional[Server] = Field(default={"host":"smtp.gmail.com", "port":"587"},
                         description="Address and port of the SMTP server from email provider."
                         )
 
     imap_server: Optional[Server] = Field(default={"host":"imap.gmail.com", "port":"993"}, 
-                        description="Address and port of the SMTP server from email provider."
+                        description="Address and port of the IMAP server from email provider."
                         )
     
 class EmailSend(EmailCredentials):
