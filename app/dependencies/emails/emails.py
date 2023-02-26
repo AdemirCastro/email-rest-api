@@ -151,7 +151,7 @@ class email:
         email_ids = imap.search(None,criterias)[1][0].decode('utf-8').split()
         return email_ids
     
-    def get_emails(self, uid: str, mailbox: str) -> dict:
+    def get_email(self, uid: str, mailbox: str) -> dict:
         """ Get emails, given mailbox and emails UIDs.
 
         Parameters:
@@ -163,7 +163,7 @@ class email:
         
         Return:
             emails_json: dict
-                Json containing email contents by uid.
+                Json containing email message contents.
         """
         imap = imaplib.IMAP4_SSL(
             host= self.imap_server['host'],

@@ -5,7 +5,6 @@ from models.emails import *
 
 router = APIRouter(
     prefix='/email',
-    tags=['email'],
     )
 
 @router.post('/messages',
@@ -52,7 +51,7 @@ def get_mailboxes(Request: EmailCredentials):
 @router.get('/messages/uids',
             response_model=UIDs_get_response_model,
             description='Get email UIDs, attending given criterias.')
-def get_messages_uids(Request: GetEmailsUIDsForm):
+def get_messages_UIDs(Request: GetEmailsUIDsForm):
     request_json = Request.dict()
     mail = email(
         login      = request_json['login'],
@@ -70,8 +69,8 @@ def get_messages_uids(Request: GetEmailsUIDsForm):
 
 
 @router.get('/messages',
-            response_model=Emails_get_response_model,
-            description='Get email messages, given mailbox and Uids.')
+            response_model=EmailMessage,
+            description='Get email message, given mailbox path and message UID.')
 def get_message(Request: EmailUID):
     request_json = Request.dict()
     mail = email(
@@ -80,12 +79,8 @@ def get_message(Request: EmailUID):
         smtp_server= request_json['smtp_server'],
         imap_server= request_json['imap_server']
         )
-    response = {
-        'emails': mail.get_emails(
-            request_json['uid'],
-            request_json['mailbox']
-        )
-    }
+    response = mail.get_email(request_json['uid'], request_json['mailbox'])
+
     return response
 
 

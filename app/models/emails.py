@@ -96,31 +96,31 @@ class EmailMessage(BaseModel):
     attachments: List[Attachment] = Field(..., description='Email message attachments.')
 
 class EmailUID(EmailCredentials):
-    mailbox: str = Field(...,description='Mailbox string.')
-    uid   : str = Field(...,description='Email UID.')
+    mailbox: str = Field(...,description='Mailbox path.')
+    uid   : str = Field(...,description='Email message UID.')
 
 class GetEmailsUIDsForm(EmailCredentials):
-    mailbox: str = Field(..., description='Mailbox string.')
+    mailbox: str = Field(..., description='Mailbox path.')
     criterias: Dict[str,str] = Field(..., description="""
         Dict with search criterias as specified in RFC 3501 (https://www.rfc-editor.org/rfc/rfc3501#section-6.4.4).
         You must put the criteria keys as the dictionary keys, end the key parameter as the values.
     """)
 
 class PutEmailsMove(EmailCredentials):
-    from_box: str = Field(...,description='Mailbox box of the message to be moved.')
-    uid     : str = Field(...,description='Uid of the message to be moved.')
-    to_box  : str = Field(...,description='Destination mailbox.')
+    from_box: str = Field(...,description='Mailbox path of the message to be moved.')
+    uid     : str = Field(...,description='UID of the message to be moved.')
+    to_box  : str = Field(...,description='Destination mailbox path.')
 
 class DeleteEmails(EmailCredentials):
-    mailbox: str = Field(..., description='Mailbox of the message to be deleted.')
-    uid    : str = Field(..., description='Uid of the message to be moved.')
+    mailbox: str = Field(..., description='Mailbox path of the message to be deleted.')
+    uid    : str = Field(..., description='UID of the message to be moved.')
 
 class PutReplyEmails(EmailCredentials):
     mailbox  : str = Field(..., 
-                        description="Mailbox of the message to be replied."
+                        description="Mailbox path of the message to be replied."
                         )
     uid      : str = Field(..., 
-                        description='Uid of the message to be replied.')
+                        description='UID of the message to be replied.')
     sender   : str = Field(..., 
                         description="Sender name that will appear on the message, "
                                     "satisfying provider policy."
@@ -151,9 +151,9 @@ class PutReplyEmails(EmailCredentials):
 
 class PostForwardMessages(EmailCredentials):
     mailbox   : str = Field(..., 
-                        description="Mailbox of the message to be replied."
+                        description="Mailbox path of the message to be replied."
                     )
-    uid       : str = Field(..., description='Uid of the message to be moved.')
+    uid       : str = Field(..., description='UID of the message to be moved.')
     sender    : str = Field(..., 
                         description="Sender name that will appear on the message, "
                                     "satisfying provider policy."
@@ -164,7 +164,7 @@ class PostForwardMessages(EmailCredentials):
                     )
     
 class postMailboxCreate(EmailCredentials):
-    new_maibox: str = Field(..., description='New mailbox complete path, with name.')
+    new_maibox: str = Field(..., description='New mailbox path, with name.')
 
 class putMailboxRename(EmailCredentials):
     old_mailbox: str = Field(..., description='Old maibox path, with name.')
@@ -172,19 +172,16 @@ class putMailboxRename(EmailCredentials):
 
 class deleteMailboxDelete(EmailCredentials):
     mailbox: str = Field(..., description=
-                         'Complete path of the mailbox to be deleted, with name.')
+                         'Path of the mailbox to be deleted, with name.')
 
 class Send_post_response_model(BaseModel):
     errors: dict[str, tuple[int, bytes]]
 
 class Mailboxes_get_response_model(BaseModel):
-    mailboxes: List[str]
-
-class Emails_get_response_model(BaseModel):
-    emails: EmailMessage
+    mailboxes: List[str] = Field(..., description="Mailboxes paths.")
 
 class UIDs_get_response_model(BaseModel):
-    uids: List[str]
+    uids: List[str] = Field(..., description="Email messages UIDs.")
 
 class Move_put_desponse_model(BaseModel):
     copy_response: str

@@ -7,9 +7,7 @@ hostname=socket.gethostname()
 IPAddr=socket.gethostbyname(hostname)
 
 app = FastAPI(
-    description= """
-    MICROSERVICE FOR EMAIL OPERATIONS.
-    """.upper()
+    description= """MICROSERVICE FOR EMAIL OPERATIONS."""
 )
 app.include_router(
     emails.router
