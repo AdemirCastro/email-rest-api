@@ -50,7 +50,7 @@ def get_mailboxes(Request: EmailCredentials):
 
 @router.get('/messages/uids',
             response_model=UIDs_get_response_model,
-            description='Get email UIDs, attending given criterias.')
+            description='Get UIDs of email messages attending given criteria.')
 def get_messages_UIDs(Request: GetEmailsUIDsForm):
     request_json = Request.dict()
     mail = email(
