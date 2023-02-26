@@ -1,29 +1,12 @@
 import json
 from fastapi import FastAPI
 
-def json_to_md(json_object: dict, h1='TITULO'):
-    md = f'# {h1}'
-    for header, data in json_object.items():
-        if 'Link' not in header:
-            md += f'## {header}\n'
-            if len(data) >= 0:
-                for content in data:
-                    if type(content) == dict:
-                        for key,value in content.items():
-                            md += f'**{key}**: {value}\n\n'
-                        md += "\n"
-                    else:
-                        md+= f'{content}'
-    with open("./app-doc.md", "w") as fd:
-        print(md, file=fd)
-
-
 def generate_documentation(app: FastAPI) -> None:
     HTML_TEMPLATE = """<!DOCTYPE html>
         <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-            <title>EMAIL APP</title>
+            <title>EMAIL API</title>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <link rel="shortcut icon" href="https://fastapi.tiangolo.com/img/favicon.png">
