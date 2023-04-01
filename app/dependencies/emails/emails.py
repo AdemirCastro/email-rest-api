@@ -36,8 +36,8 @@ class email:
         self.imap_server = imap_server
 
     def send_email( self,
-                    sender: str, recipients: str, Cc: Optional[str], subject: str, 
-                    body: str, attachments: Optional[dict], body_type: str= 'plain'
+                    sender: str, recipients: str|List[str], Cc: Optional[str|List[str]], 
+                    subject: str, body: str, attachments: Optional[dict], body_type: str= 'plain'
                 ) -> dict[str, tuple[int, bytes]]:
         """ Send a email.
         
@@ -45,10 +45,12 @@ class email:
         -----------
         sender: str
             Sender name that will appear on the message, satisfying provider policy.
-        recipients: str
-            String containing the recipients email addresses, separated by comma.
-        Cc: Optional[str]
-            Cc email list, separated by comma.
+        recipients: str | List[str]
+            List cointaining recipients email addresses, or a string 
+            containing the recipients email addresses separated by comma.
+        Cc: Optional[str|List[str]]
+            List cointaining Cc email addresses, or a string 
+            containing the recipients email addresses separated by comma.
         subject: str
             Email subject.
         body: str
@@ -74,8 +76,9 @@ class email:
         msg = MIMEMultipart()
         msg['Subject'] = subject
         msg['From']    = sender
-        msg['Cc']      = Cc
-        msg['To']      = recipients
+        if Cc is not None:
+            msg['Cc']  = Cc if type(Cc)==str else ', '.join(Cc)
+        msg['To']      = recipients if type(recipients)==str else ', '.join(recipients)
         msg.add_header('Content-Type', body_type)
         msg.attach(MIMEText(body, body_type))
 
@@ -92,9 +95,17 @@ class email:
             port=int(self.smtp_server['port'])
             )
         smtp.starttls()
-
         smtp.login(self.login,self.password)
-        return smtp.sendmail(msg['From'],[msg['To']],msg.as_string())
+
+        recipients = recipients if type(recipients)==list else recipients.replace(' ','').split(',')
+        if Cc is None:
+            recipients.extend(Cc) if type(Cc)==list else recipients.extend(Cc.replace(' ','').split(','))
+        
+        return smtp.sendmail(
+            msg['From'],
+            recipients,
+            msg.as_string()
+            )
     
     def get_mailboxes(self) -> List[str]:
         """ Get mailboxes.

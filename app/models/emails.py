@@ -40,13 +40,14 @@ class EmailSend(EmailCredentials):
                                     "satisfying provider policy."
                         )
 
-    recipients  : str = Field(..., 
-                        description="String containing the recipients email addresses, "
-                                    "separated by comma."
+    recipients  : str|List[str] = Field(..., 
+                        description="List cointaining recipients email addresses, or a string "
+                                    "containing the recipients email addresses separated by comma."
                         )
     
-    Cc          : Optional[str] = Field(default=None,
-                        description="Cc email message list."
+    Cc          : Optional[str|List[str]] = Field(default=None,
+                        description="List cointaining Cc email addresses, or a string "
+                                    "containing the Cc email addresses separated by comma."
                         )
 
     subject     : str = Field(..., 
