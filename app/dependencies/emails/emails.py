@@ -57,14 +57,15 @@ class email:
             Type of the body content structure. For exemple, you can choose 'plain' for plain text content.  
             If the content has html format, then you choose 'html'.
         attachments: Optional[dict]
-            Dictionary containing email attachments.
-            The dictionary must have this structure: 
-            {
-                'file name with extension': {
+            json containing email attachments.
+            The json must have this structure: 
+            [
+                {
+                    'filename': 'file name with extension'
                     'encoding': 'Protocol used to decode file bytes to string', 
                     'file'    : 'File bytes converted to string'
-                    }
-                }.
+                }
+            ].
 
         Return:
         --------
